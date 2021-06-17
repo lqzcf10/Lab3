@@ -1,0 +1,56 @@
+# Software Architecture and Design Patterns -- Lab 3 starter code
+# An implementation of the Service Layer
+# Copyright (C) 2021 Hui Lan
+
+
+# word and its difficulty level
+WORD_DIFFICULTY_LEVEL = {'starbucks':5, 'luckin':4, 'secondcup':4, 'costa':3, 'timhortons':3, 'frappuccino':6}
+
+
+class UnknownUser(Exception):
+    pass
+
+
+class NoArticleMatched(Exception):
+    pass
+
+
+def read(user, user_repo, article_repo, session):
+    sumlevel=0
+    count=0
+    avglevel=0
+    number=0
+#找到用户名列表
+    userlist = session.query(user_repo).filter_by(username=user.username).one()
+#如果没有抛出异常
+    if userlist == None:
+        raise UnknownUser("Wrong username ")
+#用户名没错，寻找用户名对应的密码列表
+    for item in list(userlist.password):
+#如果有设置一个特殊值
+        if item == user.password:
+            count =1
+#特殊值为0，抛出异常
+    if count == 0:
+        raise UnknownUser("Wrong password ")
+#如果数据库没有文章，抛出异常
+    if article_repo == None:
+        raise NoArticleMatched("no article in the article repository")
+#找出单词的所有复杂程度
+    level=WORD_DIFFICULTY_LEVEL.values()
+#把所有单词的复杂程度平均值算出
+    for i in level:
+        sumlevel= sumlevel+ i
+        number=number+1
+    avglevel =sumlevel/number
+#找出复杂度大于平均值的文章列表
+    articlelist = session.query(article_repo).filter_by(level>avglevel).one()
+#找出大于单词平均复杂度的文章列表中最小的复杂度的文章
+    minimumaarticlelevel = 10
+    for i in list(articlelist.level):
+        if i<minimumaarticlelevel:
+            minimumaarticlelevel = i
+#找出这个最小复杂度的文章的文章id
+    article_id = session.query(article_repo).filter_by(level=minimumaarticlelevel).one()
+#返回文章id
+    return article_id.article_id
