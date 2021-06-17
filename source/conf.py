@@ -17,7 +17,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'lab2'
+project = 'lab3'
 copyright = '2021, zcf'
 author = '朱彩凤'
 
